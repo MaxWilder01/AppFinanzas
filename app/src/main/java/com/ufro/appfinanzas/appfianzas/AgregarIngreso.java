@@ -11,17 +11,18 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Objects;
+
 public class AgregarIngreso extends AppCompatDialogFragment implements View.OnClickListener{
 
     private DatabaseReference mDatabase;
-    private FirebaseAuth mAuth;
-    EditText txtCantidadIngreso;
-    EditText txtComentarioIngreso;
-    Button btnAgregarIngreso;
+    private EditText txtCantidadIngreso;
+    private EditText txtComentarioIngreso;
 
     @NonNull
     @Override
@@ -29,16 +30,17 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("usuarios").child(mAuth.getCurrentUser().getUid()).child("ingresos");
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference("usuarios").child((mAuth.getCurrentUser()).getUid());
 
         @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.agregar_ingreso_layout, null);
 
         txtCantidadIngreso = view.findViewById(R.id.txtCantidadIngreso);
         txtComentarioIngreso = view.findViewById(R.id.txtComentarioIngreso);
-        btnAgregarIngreso = view.findViewById(R.id.btnAgregarIngreso);
+        Button btnAgregarIngreso = view.findViewById(R.id.btnAgregarIngreso);
 
         btnAgregarIngreso.setOnClickListener(this);
+
         builder.setView(view)
                 .setTitle("Agregar Ingreso");
 
@@ -48,9 +50,6 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
     @Override
     public void onClick(View view) {
         int i = view.getId();
-        String uid = (mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getUid() : null;
-
-        if (uid == null) return;
 
         switch (i) {
             case R.id.btnAgregarIngreso: {
@@ -58,7 +57,8 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
                 String comentario = txtComentarioIngreso.getText().toString();
 
                 if (!Integer.toString(cantidad).equals("") && !comentario.equals("")) {
-                    mDatabase.push().setValue(new Ingreso(cantidad, comentario));
+                    mDatabase.child("ingresos").push().setValue(new Ingreso(cantidad, comentario));
+
                     this.dismiss();
 
                 } else {
