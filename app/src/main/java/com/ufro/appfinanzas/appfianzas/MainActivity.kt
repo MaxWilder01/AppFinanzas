@@ -6,7 +6,6 @@ import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
@@ -55,13 +54,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val escuchadorIngresos = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 ingresosList!!.clear()
+                var sumaIngresos = 0
                 for (data in dataSnapshot.children) {
                     val ingresoData = data.getValue<Ingreso>(Ingreso::class.java)
                     val ingreso = ingresoData?.let { it } ?: continue
 
+                    sumaIngresos += ingreso.cantidad
+
                     ingresosList!!.add(ingreso)
                     Log.e("msj", "onDataChange: Message data is updated: " + ingreso.toString())
                 }
+                val cantidad = "$ $sumaIngresos"
+                txtCantidadIngresosMain.text = cantidad
                 adapter!!.notifyDataSetChanged()
             }
 

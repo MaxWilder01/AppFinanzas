@@ -86,7 +86,8 @@
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
                                       <entry key="iconShape" value="NONE" />
-                                      <entry key="imageAsset" value="C:\Users\Max\Documents\Inventario3\img\rocket.png" />
+                                      <entry key="imageAsset" value="C:\Users\Max\Documents\Electivo - Desarrollo aplicaciones móviles\Nueva carpeta\fl.png" />
+                                      <entry key="outputName" value="ic_ingreso" />
                                     </map>
                                   </option>
                                 </PersistentState>

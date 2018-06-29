@@ -152,10 +152,10 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/textView4"
+                android:id="@+id/txtCantidadIngresosMain"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$83.500"
+                android:text="-"
                 android:textColor="@android:color/darker_gray"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
