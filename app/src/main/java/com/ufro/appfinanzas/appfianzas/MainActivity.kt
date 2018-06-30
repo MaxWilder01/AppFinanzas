@@ -13,23 +13,23 @@ import java.util.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
-    private var ingresosList: ArrayList<Ingreso>? = null
+    private var transaccionesList: ArrayList<Transaccion>? = null
     private var mDatabase: DatabaseReference? = null
-    private var adapter: IngresoAdapter? = null
+    private var adapter: TransaccionAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         val mAuth = FirebaseAuth.getInstance()
-        mDatabase = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("ingresos")
+        mDatabase = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("transacciones")
 
         escucharIngresos()
 
         recyclerViewMain.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
-        ingresosList = ArrayList()
+        transaccionesList = ArrayList()
 
-        adapter = IngresoAdapter(ingresosList!!)
+        adapter = TransaccionAdapter(transaccionesList!!)
 
         recyclerViewMain.adapter = adapter
 
@@ -53,19 +53,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun escucharIngresos() {
         val escuchadorIngresos = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                ingresosList!!.clear()
+                transaccionesList!!.clear()
                 var sumaIngresos = 0
+                var sumaGastos = 0
                 for (data in dataSnapshot.children) {
-                    val ingresoData = data.getValue<Ingreso>(Ingreso::class.java)
-                    val ingreso = ingresoData?.let { it } ?: continue
+                    val transaccionData = data.getValue<Transaccion>(Transaccion::class.java)
+                    val transaccion = transaccionData?.let { it } ?: continue
 
-                    sumaIngresos += ingreso.cantidad
+                    if (transaccion.tipo == "ingreso") {
+                        sumaIngresos+= transaccion.cantidad
+                    } else {
+                        sumaGastos+= transaccion.cantidad
+                    }
 
-                    ingresosList!!.add(ingreso)
-                    Log.e("msj", "onDataChange: Message data is updated: " + ingreso.toString())
+                    transaccionesList!!.add(transaccion)
+                    Log.e("msj", "onDataChange: Message data is updated: " + transaccion.toString())
                 }
-                val cantidad = "$ $sumaIngresos"
-                txtCantidadIngresosMain.text = cantidad
+                val textoIngresos = "$ $sumaIngresos"
+                val textoGastos = "$ $sumaGastos"
+                val saldo = sumaIngresos - sumaGastos
+                val textoSaldo = "$ $saldo"
+
+                txtCantidadIngresosMain.text = textoIngresos
+                txtCantidadGastosMain.text = textoGastos
+                txtCantidadSaldoMain.text = textoSaldo
+
                 adapter!!.notifyDataSetChanged()
             }
 
@@ -81,7 +93,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val agregarGastoDialog = AgregarGasto()
 
         if (opcion) {
-            agregarIngresoDialog.show(supportFragmentManager, "Agregar Ingreso")
+            agregarIngresoDialog.show(supportFragmentManager, "Agregar Transaccion")
         } else {
             agregarGastoDialog.show(supportFragmentManager, "Agregar Gasto")
         }

@@ -133,10 +133,11 @@
                         </option>
                         <option name="values">
                           <map>
+                            <entry key="assetSourceType" value="FILE" />
                             <entry key="color" value="333333" />
-                            <entry key="outputName" value="ic_camera_alt_black_24dp" />
+                            <entry key="outputName" value="ic_gasto_web" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\Max\Documents\Electivo - Desarrollo aplicaciones móviles\Nueva carpeta\lock.svg" />
+                            <entry key="sourceFile" value="C:\Users\Max\Downloads\ic_gasto-web.svg" />
                           </map>
                         </option>
                       </PersistentState>

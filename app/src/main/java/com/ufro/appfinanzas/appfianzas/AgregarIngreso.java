@@ -16,9 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.Objects;
-
-public class AgregarIngreso extends AppCompatDialogFragment implements View.OnClickListener{
+public class AgregarIngreso extends AppCompatDialogFragment implements View.OnClickListener {
 
     private DatabaseReference mDatabase;
     private EditText txtCantidadIngreso;
@@ -57,7 +55,7 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
                 String comentario = txtComentarioIngreso.getText().toString();
 
                 if (!Integer.toString(cantidad).equals("") && !comentario.equals("")) {
-                    mDatabase.child("ingresos").push().setValue(new Ingreso(cantidad, comentario));
+                    mDatabase.child("transacciones").push().setValue(new Transaccion(cantidad, comentario, "ingreso"));
 
                     this.dismiss();
 
