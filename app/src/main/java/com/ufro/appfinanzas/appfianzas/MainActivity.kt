@@ -14,7 +14,8 @@ import java.util.*
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private var transaccionesList: ArrayList<Transaccion>? = null
-    private var mDatabase: DatabaseReference? = null
+    private var mDatabaseTransacciones: DatabaseReference? = null
+    private var mDatabaseTotales: DatabaseReference? = null
     private var adapter: TransaccionAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +23,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(R.layout.activity_main)
 
         val mAuth = FirebaseAuth.getInstance()
-        mDatabase = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("transacciones")
+        mDatabaseTransacciones = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("transacciones")
+        mDatabaseTotales = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("totales")
 
         escucharIngresos()
 
@@ -61,18 +63,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     val transaccion = transaccionData?.let { it } ?: continue
 
                     if (transaccion.tipo == "ingreso") {
-                        sumaIngresos+= transaccion.cantidad
+                        sumaIngresos += transaccion.cantidad
                     } else {
-                        sumaGastos+= transaccion.cantidad
+                        sumaGastos += transaccion.cantidad
                     }
 
                     transaccionesList!!.add(transaccion)
                     Log.e("msj", "onDataChange: Message data is updated: " + transaccion.toString())
                 }
-                val textoIngresos = "$ $sumaIngresos"
-                val textoGastos = "$ $sumaGastos"
-                val saldo = sumaIngresos - sumaGastos
-                val textoSaldo = "$ $saldo"
+                val textoIngresos = "$ ${darFormatoNumero(sumaIngresos)}"
+                val textoGastos = "$ ${darFormatoNumero(sumaGastos)}"
+                val textoSaldo = "$ ${darFormatoNumero(sumaIngresos - sumaGastos)}"
 
                 txtCantidadIngresosMain.text = textoIngresos
                 txtCantidadGastosMain.text = textoGastos
@@ -85,7 +86,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
             }
         }
-        mDatabase!!.addValueEventListener(escuchadorIngresos)
+        mDatabaseTransacciones!!.addValueEventListener(escuchadorIngresos)
     }
 
     private fun abrirDialogoAgregar(opcion: Boolean) {
@@ -97,5 +98,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         } else {
             agregarGastoDialog.show(supportFragmentManager, "Agregar Gasto")
         }
+    }
+
+    private fun darFormatoNumero(numero: Int): String {
+        return String.format(Locale.US, "%,d", numero).replace(',', '.')
     }
 }

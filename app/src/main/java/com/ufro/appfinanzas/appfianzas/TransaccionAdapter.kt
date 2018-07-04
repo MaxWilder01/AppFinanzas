@@ -8,12 +8,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import java.util.*
 
+
 class TransaccionAdapter(private val transaccionList: ArrayList<Transaccion>): RecyclerView.Adapter<TransaccionAdapter.ViewHolder>() {
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
 
         holder?.txtComentarioIngresoRecycler?.text = transaccionList[position].comentario
-        val cantidad = "$ ${transaccionList[position].cantidad}"
+        val cantidad = "$ ${String.format(Locale.US, "%,d", transaccionList[position].cantidad).replace(',', '.')}"
         holder?.txtCantidadIngresoRecycler?.text = cantidad
 
         if (transaccionList[position].tipo == "ingreso") {
