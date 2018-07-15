@@ -29,7 +29,7 @@ public class AgregarGasto extends AppCompatDialogFragment implements View.OnClic
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("usuarios").child((mAuth.getCurrentUser()).getUid());
+        mDatabase = FirebaseDatabase.getInstance().getReference("usuarios").child((mAuth.getCurrentUser()).getUid()).child("transacciones");
 
         @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.agregar_gasto_layout, null);
 
@@ -55,7 +55,14 @@ public class AgregarGasto extends AppCompatDialogFragment implements View.OnClic
                 String comentario = txtComentarioGasto.getText().toString();
 
                 if (!Integer.toString(cantidad).equals("") && !comentario.equals("")) {
-                    mDatabase.child("transacciones").push().setValue(new Transaccion(cantidad, comentario, "gasto"));
+
+                    String id = mDatabase.push().getKey();
+
+                    Transaccion gasto = new Transaccion(id, cantidad, comentario, "gasto");
+
+                    mDatabase.child(id).setValue(gasto);
+
+                    //mDatabase.child("transacciones").push().setValue(new Transaccion(cantidad, comentario, "gasto"));
 
                     this.dismiss();
 

@@ -3,15 +3,18 @@ package com.ufro.appfinanzas.appfianzas
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.ufro.appfinanzas.appfianzas.R.id.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity (): AppCompatActivity(), View.OnClickListener {
 
     private var transaccionesList: ArrayList<Transaccion>? = null
     private var mDatabaseTransacciones: DatabaseReference? = null
@@ -31,9 +34,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         recyclerViewMain.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
         transaccionesList = ArrayList()
 
-        adapter = TransaccionAdapter(transaccionesList!!)
+        adapter = TransaccionAdapter(transaccionesList as MutableList<Transaccion>)
 
         recyclerViewMain.adapter = adapter
+
+        val swipeHandler = object : SwipeToDeleteCallback(this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = recyclerViewMain.adapter as TransaccionAdapter
+                adapter.removeAt(viewHolder.adapterPosition)
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(recyclerViewMain)
 
         btnAgregarIngresoMain.setOnClickListener(this)
         btnAgregarGastoMain.setOnClickListener(this)
@@ -55,7 +68,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun escucharIngresos() {
         val escuchadorIngresos = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                transaccionesList!!.clear()
+                val adapter = recyclerViewMain.adapter as TransaccionAdapter
+                adapter.limpiar()
+                // TODO: CLEAR LIST
+                //transaccionesList!!.clear()
                 var sumaIngresos = 0
                 var sumaGastos = 0
                 for (data in dataSnapshot.children) {
@@ -68,7 +84,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                         sumaGastos += transaccion.cantidad
                     }
 
-                    transaccionesList!!.add(transaccion)
+                    adapter.add(transaccion)
                     Log.e("msj", "onDataChange: Message data is updated: " + transaccion.toString())
                 }
                 val textoIngresos = "$ ${darFormatoNumero(sumaIngresos)}"
@@ -79,7 +95,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 txtCantidadGastosMain.text = textoGastos
                 txtCantidadSaldoMain.text = textoSaldo
 
-                adapter!!.notifyDataSetChanged()
+                adapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

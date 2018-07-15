@@ -35,7 +35,7 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference("usuarios").child((mAuth.getCurrentUser()).getUid());
+        mDatabase = FirebaseDatabase.getInstance().getReference("usuarios").child((mAuth.getCurrentUser()).getUid()).child("transacciones");
 
         @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.agregar_ingreso_layout, null);
 
@@ -75,9 +75,14 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
                     });
 
                     //ingresoTotal = (informacionTotales == null) ? 0 : informacionTotales.getTotalIngresos();
+                    String id = mDatabase.push().getKey();
 
-                    Log.i("hola", Integer.toString(ingresoTotal));
-                    mDatabase.child("transacciones").push().setValue(new Transaccion(cantidad, comentario, "ingreso"));
+                    Transaccion gasto = new Transaccion(id, cantidad, comentario, "ingreso");
+
+                    mDatabase.child(id).setValue(gasto);
+
+                    //Log.i("hola", Integer.toString(ingresoTotal));
+                    //mDatabase.child("transacciones").push().setValue(new Transaccion(cantidad, comentario, "ingreso"));
                     //mDatabase.child("totales").child("total_ingresos").setValue(ingresoTotal + cantidad);
 
                     this.dismiss();

@@ -1,15 +1,21 @@
 package com.ufro.appfinanzas.appfianzas
 
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import java.util.*
+import kotlin.collections.ArrayList
 
 
-class TransaccionAdapter(private val transaccionList: ArrayList<Transaccion>): RecyclerView.Adapter<TransaccionAdapter.ViewHolder>() {
+class TransaccionAdapter(private val items: MutableList<Transaccion>): RecyclerView.Adapter<TransaccionAdapter.ViewHolder>() {
+    private var transaccionList: ArrayList<Transaccion> = ArrayList()
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
 
@@ -34,10 +40,34 @@ class TransaccionAdapter(private val transaccionList: ArrayList<Transaccion>): R
         return transaccionList.size
     }
 
+    fun add(transaccion: Transaccion) {
+        transaccionList.add(transaccion)
+        notifyDataSetChanged()
+    }
+
+    fun removeAt(posicion: Int) {
+        val mAuth = FirebaseAuth.getInstance()
+
+        FirebaseDatabase.getInstance()
+                        .getReference("usuarios")
+                        .child((mAuth.currentUser)!!
+                        .uid)
+                        .child("transacciones")
+                        .child(transaccionList[posicion].id)
+                        .removeValue()
+
+        transaccionList.removeAt(posicion)
+
+        notifyItemRemoved(posicion)
+    }
+
+    fun limpiar () {
+        transaccionList.clear()
+    }
+
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         val txtComentarioIngresoRecycler = itemView.findViewById<TextView>(R.id.txtComentarioIngresoRecycler)!!
         val txtCantidadIngresoRecycler = itemView.findViewById<TextView>(R.id.txtCantidadIngresoRecycler)!!
         val imgIngresoRecycler = itemView.findViewById<ImageView>(R.id.imgIngresoRecycler)!!
     }
-
 }

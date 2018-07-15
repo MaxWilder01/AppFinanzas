@@ -15,4 +15,5 @@
     <string name="camara">Cámara fotográfica</string>
     <string name="empty" />
     <string name="ultimos_movimientos">Últimos Movimientos</string>
+    <string name="flechita">flechita</string>
 </resources>
