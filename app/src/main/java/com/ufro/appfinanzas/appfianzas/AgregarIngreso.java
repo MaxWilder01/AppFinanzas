@@ -18,15 +18,21 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Calendar;
 
 public class AgregarIngreso extends AppCompatDialogFragment implements View.OnClickListener {
 
     private DatabaseReference mDatabase;
+    private DatabaseReference mDatabaseTotales;
     private EditText txtCantidadIngreso;
     private EditText txtComentarioIngreso;
-    private InformacionTotales informacionTotales;
-    private int ingresoTotal;
+    private int cantidad;
 
     @NonNull
     @Override
@@ -36,7 +42,7 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference("usuarios").child((mAuth.getCurrentUser()).getUid()).child("transacciones");
-
+        mDatabaseTotales = FirebaseDatabase.getInstance().getReference("usuarios").child((mAuth.getCurrentUser()).getUid()).child("totales");
         @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.agregar_ingreso_layout, null);
 
         txtCantidadIngreso = view.findViewById(R.id.txtCantidadIngreso);
@@ -57,64 +63,55 @@ public class AgregarIngreso extends AppCompatDialogFragment implements View.OnCl
 
         switch (i) {
             case R.id.btnAgregarIngreso: {
-                int cantidad = Integer.parseInt(txtCantidadIngreso.getText().toString());
-                String comentario = txtComentarioIngreso.getText().toString();
-
-                if (!Integer.toString(cantidad).equals("") && !comentario.equals("")) {
-
-                    mDatabase.child("totales").addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot snapshot) {
-                            informacionTotales = snapshot.getValue(InformacionTotales.class);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-                    //ingresoTotal = (informacionTotales == null) ? 0 : informacionTotales.getTotalIngresos();
-                    String id = mDatabase.push().getKey();
-
-                    Transaccion gasto = new Transaccion(id, cantidad, comentario, "ingreso");
-
-                    mDatabase.child(id).setValue(gasto);
-
-                    //Log.i("hola", Integer.toString(ingresoTotal));
-                    //mDatabase.child("transacciones").push().setValue(new Transaccion(cantidad, comentario, "ingreso"));
-                    //mDatabase.child("totales").child("total_ingresos").setValue(ingresoTotal + cantidad);
-
-                    this.dismiss();
-
-                } else {
-                    Toast.makeText(getActivity(), "Todos los campos son obligatorios", Toast.LENGTH_LONG).show();
-                }
+                agregarIngreso();
             }
         }
     }
 
+    private void agregarIngreso() {
+        cantidad = Integer.parseInt(txtCantidadIngreso.getText().toString());
+        String comentario = txtComentarioIngreso.getText().toString();
 
+        if (!Integer.toString(cantidad).equals("") && !comentario.equals("")) {
 
-    /*private InformacionTotales escucharTotales() {
+            String id = mDatabase.push().getKey();
 
-        ValueEventListener escuchadorTotales = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            Transaccion ingreso = new Transaccion(id, cantidad, comentario, "ingreso", getFecha());
 
-                if (dataSnapshot.exists()) {
-                    informacionTotales = dataSnapshot.getValue(InformacionTotales.class);
-                    Log.i("hola", informacionTotales.toString());
-                } else {
-                    informacionTotales = null;
+            mDatabaseTotales.child("total_ingresos").addListenerForSingleValueEvent(new ValueEventListener() {
+
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        int valorActual = snapshot.getValue(Integer.class);
+                        mDatabaseTotales.child("total_ingresos").setValue(valorActual + cantidad);
+
+                    } else {
+                        mDatabaseTotales.child("total_ingresos").setValue(cantidad);
+                        mDatabaseTotales.child("total_gastos").setValue(0);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        };
-        mDatabase.child("totales").addValueEventListener(escuchadorTotales);
-        return informacionTotales;
-    }*/
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+            mDatabase.child(id).setValue(ingreso);
+
+            this.dismiss();
+
+        } else {
+            Toast.makeText(getActivity(), "Todos los campos son obligatorios", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public String getFecha() {
+        Calendar now = Calendar.getInstance();
+        String year = Integer.toString(now.get(Calendar.YEAR));
+        String month = Integer.toString(now.get(Calendar.MONTH));
+
+        return year + month;
+    }
 }

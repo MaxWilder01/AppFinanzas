@@ -70,8 +70,6 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val adapter = recyclerViewMain.adapter as TransaccionAdapter
                 adapter.limpiar()
-                // TODO: CLEAR LIST
-                //transaccionesList!!.clear()
                 var sumaIngresos = 0
                 var sumaGastos = 0
                 for (data in dataSnapshot.children) {
@@ -102,7 +100,15 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
 
             }
         }
-        mDatabaseTransacciones!!.addValueEventListener(escuchadorIngresos)
+        mDatabaseTransacciones!!.orderByChild("fecha").equalTo(getFecha()).addValueEventListener(escuchadorIngresos)
+    }
+
+    fun getFecha(): String {
+        val now = Calendar.getInstance()
+        val year = Integer.toString(now.get(Calendar.YEAR))
+        val month = Integer.toString(now.get(Calendar.MONTH))
+
+        return year + month
     }
 
     private fun abrirDialogoAgregar(opcion: Boolean) {
