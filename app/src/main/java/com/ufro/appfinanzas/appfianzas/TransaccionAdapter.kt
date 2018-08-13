@@ -7,15 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 class TransaccionAdapter(private val items: MutableList<Transaccion>): RecyclerView.Adapter<TransaccionAdapter.ViewHolder>() {
     private var transaccionList: ArrayList<Transaccion> = ArrayList()
+    val mAuth = FirebaseAuth.getInstance()
+    private var mDatabaseTotales = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("totales")
 
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
 
@@ -47,6 +48,33 @@ class TransaccionAdapter(private val items: MutableList<Transaccion>): RecyclerV
 
     fun removeAt(posicion: Int) {
         val mAuth = FirebaseAuth.getInstance()
+
+        val cantidad = transaccionList[posicion].cantidad
+        val tipo = transaccionList[posicion].tipo
+
+        if (tipo == "ingreso") {
+            mDatabaseTotales!!.child("total_ingresos").addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val valorActual = snapshot.getValue(Int::class.java)!!
+                    mDatabaseTotales.child("total_ingresos").setValue(valorActual - cantidad)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+
+                }
+            })
+        } else {
+            mDatabaseTotales!!.child("total_gastos").addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val valorActual = snapshot.getValue(Int::class.java)!!
+                    mDatabaseTotales.child("total_gastos").setValue(valorActual - cantidad)
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+
+                }
+            })
+        }
 
         FirebaseDatabase.getInstance()
                         .getReference("usuarios")
