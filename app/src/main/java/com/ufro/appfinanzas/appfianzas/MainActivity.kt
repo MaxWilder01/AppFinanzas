@@ -29,7 +29,7 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
         mDatabaseTransacciones = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("transacciones")
         mDatabaseTotales = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("totales")
 
-        escucharIngresos()
+        escucharTransacciones()
 
         recyclerViewMain.layoutManager = LinearLayoutManager(this, LinearLayout.VERTICAL, false)
         transaccionesList = ArrayList()
@@ -65,8 +65,8 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun escucharIngresos() {
-        val escuchadorIngresos = object : ValueEventListener {
+    private fun escucharTransacciones() {
+        val escuchadorTransacciones = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val adapter = recyclerViewMain.adapter as TransaccionAdapter
                 adapter.limpiar()
@@ -87,11 +87,11 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
                 }
                 val textoIngresos = "$ ${darFormatoNumero(sumaIngresos)}"
                 val textoGastos = "$ ${darFormatoNumero(sumaGastos)}"
-                val textoSaldo = "$ ${darFormatoNumero(sumaIngresos - sumaGastos)}"
+                //val textoSaldo = "$ ${darFormatoNumero(sumaIngresos - sumaGastos)}"
 
                 txtCantidadIngresosMain.text = textoIngresos
                 txtCantidadGastosMain.text = textoGastos
-                txtCantidadSaldoMain.text = textoSaldo
+                //txtCantidadSaldoMain.text = textoSaldo
 
                 adapter.notifyDataSetChanged()
             }
@@ -100,7 +100,32 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
 
             }
         }
-        mDatabaseTransacciones!!.orderByChild("fecha").equalTo(getFecha()).addValueEventListener(escuchadorIngresos)
+        mDatabaseTransacciones!!.orderByChild("fecha").equalTo(getFecha()).addValueEventListener(escuchadorTransacciones)
+        escucharSaldo()
+    }
+
+    fun escucharSaldo() {
+        mDatabaseTotales!!.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot?) {
+                val children = snapshot!!.children
+                var saldo:Long = 0
+                var contador = 0
+                children.forEach {
+
+                    if (contador == 0)
+                        saldo-= it.value as Long
+                    else
+                        saldo+= it.value as Long
+                    contador++
+                }
+
+                txtCantidadSaldoMain.text = "$" + darFormatoNumero(Integer.parseInt("" + saldo))
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+
+            }
+        })
     }
 
     fun getFecha(): String {
