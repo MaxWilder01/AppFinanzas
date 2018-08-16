@@ -10,11 +10,11 @@ import android.view.View
 import android.widget.LinearLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.ufro.appfinanzas.appfianzas.R.id.*
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main_uno.*
+import java.text.DateFormatSymbols
 import java.util.*
 
-class MainActivity (): AppCompatActivity(), View.OnClickListener {
+class MainActivityUno (): AppCompatActivity(), View.OnClickListener {
 
     private var transaccionesList: ArrayList<Transaccion>? = null
     private var mDatabaseTransacciones: DatabaseReference? = null
@@ -23,7 +23,7 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main_uno)
 
         val mAuth = FirebaseAuth.getInstance()
         mDatabaseTransacciones = FirebaseDatabase.getInstance().reference.child("usuarios").child((mAuth.currentUser)!!.uid).child("transacciones")
@@ -50,6 +50,8 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
 
         btnAgregarIngresoMain.setOnClickListener(this)
         btnAgregarGastoMain.setOnClickListener(this)
+
+        mostrarMes()
     }
 
     override fun onClick(view: View?) {
@@ -149,5 +151,12 @@ class MainActivity (): AppCompatActivity(), View.OnClickListener {
 
     private fun darFormatoNumero(numero: Int): String {
         return String.format(Locale.US, "%,d", numero).replace(',', '.')
+    }
+
+    private fun mostrarMes() {
+        val now = Calendar.getInstance()
+        val month = (now.get(Calendar.MONTH))
+        val x = arrayOf("enero", "febrero", "marzo", "abril", "mayo", "junio", "agosto", "septiembre", "octubre", "noviembre", "diciembre")
+        txtUltMov.text = "Movimientos ${x[month-1]}"
     }
 }

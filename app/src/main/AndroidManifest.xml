@@ -18,12 +18,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".MainActivityUno"
             android:label="@string/inicio"
-            android:theme="@style/AppTheme"
-            >
+            android:theme="@style/AppTheme" />
 
-        </activity>
     </application>
 
 </manifest>

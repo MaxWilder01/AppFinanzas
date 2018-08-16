@@ -6,8 +6,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
@@ -41,7 +39,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         if (email!!.isNotEmpty() && clave!!.isNotEmpty()) {
             mAuth!!.signInWithEmailAndPassword(email!!, clave!!).addOnCompleteListener(this, { task ->
                 if (task.isSuccessful) {
-                    startActivity(Intent(this, MainActivity::class.java))
+                    startActivity(Intent(this, MainActivityUno::class.java))
                 } else {
                     Toast.makeText(this, "Login unsuccessful: " + task.exception?.message, Toast.LENGTH_SHORT).show()
                 }
